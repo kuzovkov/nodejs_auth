@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{data.title}}</title></head>
+<body>
+
+{% if data.user %}
+<a href="/logout">Logout</a>
+{% else %}
+<a href="/login">Login</a>
+<a href="/register">Register</a>
+{% endif %}
+
+<a href="/users">Users</a>
+<a href="/keys">Keys</a>
+<a href="/products">Products</a>
+<p>{{data.text}}</p>
+{% if data.user %}
+	<p>{{data.user}}</p>
+{% endif %}
+</body>
+
+</html>

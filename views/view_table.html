@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{title}}</title>
+<meta charset="utf-8"/>
+</head>
+
+<body>
+<style>
+table,td,tr,th
+{
+    border: 1px solid black;
+}
+
+th
+{
+    background-color: #FFFF80;
+}
+
+</style>
+<h1>{{title}}</h1>
+<table>
+
+<tr>
+{% for item in fld %}
+    <th>{{item.name}}</th>
+{% endfor %}
+</tr>
+
+{% for model in models %}
+
+<tr>
+
+    {% for opt in model %}
+       <td>{{opt}}</td> 
+    {% endfor %}
+</tr>
+
+
+{% endfor %}
+</table>
+<a href="/">Home</a>
+</body>
+
+</html>
