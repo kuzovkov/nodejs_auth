@@ -70,6 +70,23 @@ app.post('/register', function(req,res){
 		
 	});
 });
+
+app.post('/fbuserdata', function(req,res){
+	var name = req.body.name;
+	var accessToken = req.body.access_token;
+	var userId = req.body.user_id;
+	auth.addFbUser(name, userId, accessToken, function(result){
+		res.json({res:result});
+	});
+});
+
+app.post('/fbuserlogin', function(req,res){
+	var name = req.body.name;
+	var userId = req.body.user_id;
+	auth.login(name, userId, req, function(result){
+		res.json({res:result});
+	});
+});
 	   
 
 
