@@ -1,6 +1,6 @@
 var sqlite3 = require('sqlite3');
 var hash = require('./md5').calcMD5;
-var db_file = 'users.sqlite';
+var db_file = 'users.sqlite'; /**файл учетных записей пользователей**/
 
 var db = new sqlite3.Database(db_file);
 
@@ -14,7 +14,11 @@ db.run(sql,function(err){
 	}
 });
 
-
+/**
+* выполнение произвольного запроса
+* @param sql строка запроса
+* @param callback функция обратного вызова в которую передается результат
+**/
 function query(sql, callback){
 	db.run(sql,function(err){
 		if ( err != null ){
@@ -25,7 +29,13 @@ function query(sql, callback){
 	});
 }
 
-
+/**
+* обработка запроса на вход в аккаунт
+* @param login логин
+* @param pass пароль
+* @param req объект request
+* @param callback функция обратного вызова в которую передается результат
+**/
 function login(login, pass, req, callback){
 	checkPass(login, hash(pass), function(res){
 		if (res){			
@@ -38,13 +48,20 @@ function login(login, pass, req, callback){
 	});
 }
 
-
+/**
+* обработка запроса на выход из аккаунта
+* @param req объект request
+**/
 function logout(req){	
 	req.session.destroy(function(err){
 		if (err) console.log(err);
 	});
 }
 
+/**
+* получение массива пользователей из базы данных
+* @param callback функция обратного вызова в которую передается результат в виде массива объектов
+**/
 function getUsers(callback){
 	var sql = "SELECT * FROM users";
 	var users = [];	
@@ -56,6 +73,10 @@ function getUsers(callback){
 	});	
 }
 
+/**
+* добавление учетной записи пользователя в базу данных
+* @param user объект пользователя вида {login:login, pass:password}
+**/
 function addUser(user){
 	var sql = "INSERT INTO users (login, password) VALUES ('"+user.login+"','"+hash(user.pass)+"')";
 	db.run(sql,function(err){
@@ -67,23 +88,40 @@ function addUser(user){
 	});
 }
 
+/**
+* добавление учетной записи пользователя в базу данных при получении учетных данных от Facebook
+* @param name имя пользователя
+* @param userId ID пользователя в Facebook
+* @param accessToken предоставленный Facebook
+* @param callback функция обратного вызова в которую передается результат
+**/
 function addFbUser(name, userId, accessToken, callback){
 	getUsers(function(users){
-		for(var i = 0; i < users.length; i++){
-			if (users[i].login == name && userId == users[i].fb_id){
-				var sql = "UPDATE users SET access_token ='"+accessToken+"' WHERE fb_id='"+userId+"' AND login='"+name+"'";
-				query(sql, callback);
-				return;		
-			}else{
-				var sql = "INSERT INTO users (login, password, fb_id, access_token) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"');
-				query(sql, callback);
-				return;
+		if (users.length > 0){
+			for(var i = 0; i < users.length; i++){
+				if (users[i].login == name && userId == users[i].fb_id){
+					var sql = "UPDATE users SET access_token ='"+accessToken+"' WHERE fb_id='"+userId+"' AND login='"+name+"'";
+					console.log('fbuser update');
+					query(sql, callback);
+					return;		
+				}
 			}
+		}else{
+				console.log(userId);
+				var sql = "INSERT INTO users (login, password, fb_id, access_token) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"')";
+				query(sql, callback);
+				console.log('fbuser added');
+				return;
 		}
 	});
 }
 
-
+/**
+* обработка запроса на регистрацию нового пользователя
+* @param login логин
+* @param pass пароль
+* @param callback функция обратного вызова в которую передается результат
+**/
 function register(login, pass, callback){
 	getUsers(function(users){
 		for(var i = 0; i < users.length; i++){
@@ -97,7 +135,12 @@ function register(login, pass, callback){
 	});	
 }
 
-
+/**
+* обработка запроса на проверку авторизации пользователя
+* @param req объект request
+* @param res объект response
+* @param next функция вызываемая после успешной проверки
+**/
 function isAuth(req, res, next){
 	if (req.session.login && req.session.pass){
 		checkPass(req.session.login, req.session.pass, function(result){
@@ -112,12 +155,20 @@ function isAuth(req, res, next){
 	}
 }
 
-
+/**
+* получение логина текущего пользователя
+* @param req объект request
+**/
 function getCurrUser(req){
 	return req.session.login;
 }
 
-
+/**
+* проверка учетных данных
+* @param login логин
+* @param pass пароль
+* @param callback функция обратного вызова в которую передается результат
+**/
 function checkPass(login, pass, callback){
 	getUsers(function(users){
 		for (var i = 0; i < users.length; i++){
@@ -137,3 +188,4 @@ exports.getUsers = getUsers;
 exports.register = register;
 exports.isAuth = isAuth;
 exports.getCurrUser = getCurrUser;
+exports.addFbUser = addFbUser;

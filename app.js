@@ -83,6 +83,7 @@ app.post('/fbuserdata', function(req,res){
 app.post('/fbuserlogin', function(req,res){
 	var name = req.body.name;
 	var userId = req.body.user_id;
+	console.log(name+':'+userId);
 	auth.login(name, userId, req, function(result){
 		res.json({res:result});
 	});
