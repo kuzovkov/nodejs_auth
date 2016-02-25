@@ -44,10 +44,12 @@ Auth.sendFbUserdata = function(response, callback){
 		var userId = response.authResponse.userID;
 		var accessToken = response.authResponse.accessToken;
 		var name = '';
-		FB.api('/me', function(response){
+		var email = '';
+		FB.api('/'+userId, { locale: 'en_US', fields: 'name, email' }, function(response){
 			name = response.name;
+			email = response.email;
 			console.log(response);
-			var params = "user_id="+userId+"&access_token="+accessToken+"&name="+name;
+			var params = "user_id="+userId+"&access_token="+accessToken+"&name="+name+"&email="+email;
 			Ajax.sendRequest('POST', '/fbuserdata', params, callback);
 		});
 	}
@@ -65,9 +67,11 @@ Auth.fbUserLogin = function(callback){
 			var userId = response.authResponse.userID;
 			var name = '';
 			var accessToken = response.authResponse.accessToken;
-			FB.api('/me', function(response){
+			var email = '';
+			FB.api('/me', { locale: 'en_US', fields: 'name, email' }, function(response){
 				name = response.name;
-				var params = "user_id="+userId+"&access_token="+accessToken+"&name="+name;
+				email = response.email;
+				var params = "user_id="+userId+"&access_token="+accessToken+"&name="+name+"&email="+email;
 				Ajax.sendRequest('POST', '/fbuserlogin', params, function(result){
 					console.log(result);
 					if (result.res){

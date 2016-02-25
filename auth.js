@@ -5,7 +5,7 @@ var db_file = 'users.sqlite'; /**файл учетных записей поль
 var db = new sqlite3.Database(db_file);
 
 /** создание таблицы если не было**/
-var sql = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, login, password, fb_id, access_token)";	
+var sql = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, login, password, fb_id, access_token, email)";	
 db.run(sql,function(err){
 	if ( err != null ){
 		console.log(err);
@@ -78,7 +78,7 @@ function getUsers(callback){
 * @param user объект пользователя вида {login:login, pass:password}
 **/
 function addUser(user){
-	var sql = "INSERT INTO users (login, password) VALUES ('"+user.login+"','"+hash(user.pass)+"')";
+	var sql = "INSERT INTO users (login, password, email) VALUES ('"+user.login+"','"+hash(user.pass)+"', '"+user.email+"')";
 	db.run(sql,function(err){
 		if ( err != null ){
 			console.log(err);
@@ -95,13 +95,13 @@ function addUser(user){
 * @param accessToken предоставленный Facebook
 * @param callback функция обратного вызова в которую передается результат
 **/
-function addFbUser(name, userId, accessToken, callback){
+function addFbUser(name, userId, accessToken, email, callback){
 	getUsers(function(users){
 		if (users.length > 0){
 			for(var i = 0; i < users.length; i++){
 				console.log(users[i].login+'-'+name+';'+users[i].fb_id+'-'+userId);
 				if (users[i].login == name && userId == users[i].fb_id){
-					var sql = "UPDATE users SET access_token ='"+accessToken+"' WHERE fb_id='"+userId+"' AND login='"+name+"'";
+					var sql = "UPDATE users SET access_token ='"+accessToken+"', email = '"+ email +"' WHERE fb_id='"+userId+"' AND login='"+name+"'";
 					console.log('fbuser update');
 					query(sql, callback);
 					return;		
@@ -109,7 +109,7 @@ function addFbUser(name, userId, accessToken, callback){
 			}
 		}
 		console.log(userId);
-		var sql = "INSERT INTO users (login, password, fb_id, access_token) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"')";
+		var sql = "INSERT INTO users (login, password, fb_id, access_token, email) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"','"+email+"')";
 		query(sql, callback);
 		console.log('fbuser added');
 		return;
@@ -123,7 +123,7 @@ function addFbUser(name, userId, accessToken, callback){
 * @param pass пароль
 * @param callback функция обратного вызова в которую передается результат
 **/
-function register(login, pass, callback){
+function register(login, pass, email, callback){
 	getUsers(function(users){
 		for(var i = 0; i < users.length; i++){
 			if (users[i].login == login){
@@ -131,7 +131,7 @@ function register(login, pass, callback){
 				return;		
 			}
 		}	
-		addUser({login:login, pass:pass});
+		addUser({login:login, pass:pass, email: email});
 		callback(true);
 	});	
 }

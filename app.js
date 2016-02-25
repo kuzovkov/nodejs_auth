@@ -61,7 +61,8 @@ app.get('/register', function(req,res){
 app.post('/register', function(req,res){
 	var login = req.body.username;
 	var pass = req.body.password;
-	auth.register(login, pass, function(result){
+	var email = req.body.email;
+	auth.register(login, pass, email, function(result){
 		if (result){
 			res.render('index',{data:{title:'User '+login+' was added', text: 'User '+login+' was added'}});
 		}else{
@@ -75,8 +76,9 @@ app.post('/fbuserdata', function(req,res){
 	var name = req.body.name;
 	var accessToken = req.body.access_token;
 	var userId = req.body.user_id;
-	console.log(name+':'+userId+':'+accessToken);
-	auth.addFbUser(name, userId, accessToken, function(result){
+	var email = req.body.email;
+	console.log(name+':'+userId+':'+accessToken+':'+email);
+	auth.addFbUser(name, userId, accessToken, email, function(result){
 		res.json({res:result});
 	});
 });
@@ -84,7 +86,8 @@ app.post('/fbuserdata', function(req,res){
 app.post('/fbuserlogin', function(req,res){
 	var name = req.body.name;
 	var userId = req.body.user_id;
-	console.log(name+':'+userId);
+	var email = req.body.email;
+	console.log(name+':'+userId+':'+email);
 	auth.login(name, userId, req, function(result){
 		res.json({res:result});
 	});
