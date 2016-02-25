@@ -67,7 +67,7 @@ function getUsers(callback){
 	var users = [];	
 	db.all(sql, function(err, rows){
 		for ( var i = 0; i < rows.length; i++ ){
-			users.push({login: rows[i].login, pass: rows[i].password});
+			users.push({login: rows[i].login, pass: rows[i].password, fb_id: rows[i].fb_id, access_token: rows[i].access_token});
 		}
 		callback(users);
 	});	
@@ -99,6 +99,7 @@ function addFbUser(name, userId, accessToken, callback){
 	getUsers(function(users){
 		if (users.length > 0){
 			for(var i = 0; i < users.length; i++){
+				console.log(users[i].login+'-'+name+';'+users[i].fb_id+'-'+userId);
 				if (users[i].login == name && userId == users[i].fb_id){
 					var sql = "UPDATE users SET access_token ='"+accessToken+"' WHERE fb_id='"+userId+"' AND login='"+name+"'";
 					console.log('fbuser update');
@@ -106,13 +107,13 @@ function addFbUser(name, userId, accessToken, callback){
 					return;		
 				}
 			}
-		}else{
-				console.log(userId);
-				var sql = "INSERT INTO users (login, password, fb_id, access_token) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"')";
-				query(sql, callback);
-				console.log('fbuser added');
-				return;
 		}
+		console.log(userId);
+		var sql = "INSERT INTO users (login, password, fb_id, access_token) VALUES ('"+name+"','"+hash(userId)+"','"+userId+"','"+accessToken+"')";
+		query(sql, callback);
+		console.log('fbuser added');
+		return;
+		
 	});
 }
 

@@ -75,6 +75,7 @@ app.post('/fbuserdata', function(req,res){
 	var name = req.body.name;
 	var accessToken = req.body.access_token;
 	var userId = req.body.user_id;
+	console.log(name+':'+userId+':'+accessToken);
 	auth.addFbUser(name, userId, accessToken, function(result){
 		res.json({res:result});
 	});

@@ -39,12 +39,14 @@ Auth.init = function(){
 **/
 Auth.sendFbUserdata = function(response, callback){
 	console.log('Auth.sendFbUserdata');
+	console.log(response);
 	if (response.status == 'connected'){
 		var userId = response.authResponse.userID;
 		var accessToken = response.authResponse.accessToken;
 		var name = '';
 		FB.api('/me', function(response){
 			name = response.name;
+			console.log(response);
 			var params = "user_id="+userId+"&access_token="+accessToken+"&name="+name;
 			Ajax.sendRequest('POST', '/fbuserdata', params, callback);
 		});
