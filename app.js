@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var express = require('express');
 var cons = require('consolidate');
 var app = express();
@@ -14,8 +15,9 @@ app.set('views',__dirname+'/views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
-app.use(express.cookieParser());
-app.use(express.session({ secret: 'keyboard cat' }));
+app.use(cookieParser());
+app.use(session({ secret: 'keyboard cat' }));
+
 
 app.use('/users', auth.isAuth);
 app.use('/keys', auth.isAuth);
